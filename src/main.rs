@@ -26,8 +26,18 @@ fn main() {
 fn load_docs_from_paths( paths: Vec<PathBuf>) -> Vec<Document>{
     let mut documents: Vec<Document> = Vec::new();
     for path in paths{
-        let doc = Document::load(path.display().to_string()).unwrap(); // handle this somehow and let reenter
-        documents.push(doc);
+
+        match Document::load(path.display().to_string()){
+            Ok(doc) =>{
+                documents.push(doc);
+                
+            }
+            Err(err) =>{
+                println!("Could not find path: {} -> {} ", path.display().to_string(), err);
+            }
+
+        } 
+        
     }
     return documents;
 }
