@@ -7,6 +7,7 @@ use lopdf::{Document};
 
 
 
+
 fn main() {
     
     let arguments = CliArgs::parse();
@@ -33,7 +34,8 @@ fn load_docs_from_paths( paths: Vec<PathBuf>) -> Vec<Document>{
                 
             }
             Err(err) =>{
-                println!("Could not find path: {} -> {} ", path.display().to_string(), err);
+                println!("Could not find path: {}\n-> {} ", path.display().to_string(), err);
+                std::process::exit(0);
             }
 
         } 
