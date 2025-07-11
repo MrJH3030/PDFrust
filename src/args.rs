@@ -20,14 +20,14 @@ pub struct CliArgs{
 
         /// page numbers of the first file [optional]
         #[arg(short = 'f', long = "pages-first")]
-        pages_1: Option<String>,
+        page_string_1: Option<String>,
 
         /// path to second pdf file
         file_path_2: std::path::PathBuf,
 
         /// page numbers of the second file [optional]
         #[arg(short = 's', long = "pages-second")]
-        pages_2: Option<String>,
+        page_string_2: Option<String>,
 
         /// path to output location [optional]
         #[arg(short = 'o',long = "output")]

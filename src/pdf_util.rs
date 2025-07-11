@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 use lopdf::{Document, Object, ObjectId,  Bookmark};
 use std::path::{Path, PathBuf};
 
@@ -26,6 +26,18 @@ pub fn load_docs_from_paths( paths: Vec<&PathBuf>) -> Vec<Document>{
 pub fn delete_pages_and_save(doc :&mut Document, pages :&[u32], output_path: String){
     doc.delete_pages(pages);
     doc.save(output_path).unwrap();
+}
+
+pub fn delete_pages_not_in( set: &HashSet<u32>, doc :&mut Document){
+
+    let number_of_pages = doc.get_pages().len();
+    let mut to_delete = vec![];
+    for i in 1..=number_of_pages as u32 {
+        if !set.contains(&i){
+            to_delete.push(i);
+        }
+    }
+    doc.delete_pages(&to_delete);
 }
 
 

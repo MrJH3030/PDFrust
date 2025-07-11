@@ -23,7 +23,8 @@ pub fn parse_page_string(page_string: &mut String) -> HashSet<u32> {
                 eprintln!("Invalid range detected");
 
             }else {
-
+                // This is wrong -> enuemrate all pages not only two
+                eprintln!("Range found");
                 for r in range {
                     insert_parsed_pages(&mut pages, &r.to_string());                    
                 }
