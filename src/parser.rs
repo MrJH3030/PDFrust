@@ -1,4 +1,4 @@
-use std::u32;
+use std::{process, u32};
 use std::collections::HashSet;
 
 /**
@@ -18,18 +18,33 @@ pub fn parse_page_string(page_string: &mut String) -> HashSet<u32> {
         let str = s.to_string();
 
         if str.contains('-') {
-            let range = str.split('-');
-            if range.clone().count() != 2 {
-                eprintln!("Invalid range detected");
+            let range = str.split_once('-');
+            match range {
 
-            }else {
-                // This is wrong -> enuemrate all pages not only two
-                eprintln!("Range found");
-                for r in range {
-                    insert_parsed_pages(&mut pages, &r.to_string());                    
+                Some(tuple) => {
+                    let r1 = tuple.0.to_string().parse::<u32>().unwrap_or_else(|err| {
+                        eprintln!("Invalid Input: {}\nError: {err}", tuple.0);
+                        process::exit(0);
+                    }); 
+                    let r2 =  tuple.1.to_string().parse::<u32>().unwrap_or_else(|err| {
+                        eprintln!("Invalid Input: {}\nError: {err}", tuple.1);
+                        process::exit(0);
+                    }); 
+                    if r1 <= r2 {
+                        for p in r1..=r2 {
+                            pages.insert(p);
+                        }
+                    } else {
+                        eprintln!("Please try again\nInvalid range from {r1} to {r2}");
+                        process::exit(0);
+                    }
+
+                }
+                None =>{
+                    eprintln!("Failed to parse range");
                 }
             }
-
+    
         } else {
             insert_parsed_pages(&mut pages, &str);
 

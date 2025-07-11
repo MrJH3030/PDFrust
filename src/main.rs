@@ -12,7 +12,7 @@ use std::path::{Path};
 
 fn main() {
     
-    let mut arguments = CliArgs::parse();
+    let arguments = CliArgs::parse();
     match &arguments.command {
 
         Commands::Merge {file_path_1, page_string_1, file_path_2, page_string_2, output_path} => {
