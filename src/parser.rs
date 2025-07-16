@@ -3,8 +3,10 @@ use std::collections::HashSet;
 
 /**
  * 
- *  Parse the pages that are pass by the user
- *  Pattern for pages is are comma seperated numbers for single pages and dash separation within a range like so : 4, 5, 6, 7-12 
+ *  Parse the pages that are passed by the user
+ *  Pattern for pages are comma seperated numbers for single pages and dash separation within a range like so : 4, 5, 6, 7-12 
+ * 
+ *  ToDo rethink error handling with process::exit 
  * 
  * */
 
@@ -65,6 +67,7 @@ fn insert_parsed_pages(pages: &mut HashSet<u32>, str: &String) {
 
                 Err(err) => {
                         eprintln!("Failed to parse page\n {err}");
+                        process::exit(0);
                 }
             }
 

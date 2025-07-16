@@ -30,8 +30,12 @@ pub struct CliArgs{
         page_string_2: Option<String>,
 
         /// path to output location [optional]
-        #[arg(short = 'o',long = "output")]
+        #[arg(short = 'p',long = "output_path")]
         output_path: Option<std::path::PathBuf>,
+
+        /// output filename [optional]
+        #[arg(short = 'o',long = "output_name")]
+        output_name: Option<String>,
     },
 
     Browse{

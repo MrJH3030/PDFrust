@@ -42,7 +42,7 @@ pub fn delete_pages_not_in( set: &HashSet<u32>, doc :&mut Document){
 
 
 /*This code is basically the same as the merge example in lopdf docs */
-pub fn merge_docs(documents: Vec<Document>) -> std::io::Result<()>{
+pub fn merge_docs(documents: Vec<Document>, output_path:  Option<PathBuf>, output_file_name: Option<String>) -> std::io::Result<()>{
     
     let mut max_id = 1;
     let mut pagenum = 1;
@@ -210,15 +210,28 @@ pub fn merge_docs(documents: Vec<Document>) -> std::io::Result<()>{
 
     document.compress();
 
-    // Save the merged PDF.
+    
+    let output_file_name= match output_file_name {
 
-    //if let Some() {
-    //check output path
-    // default path in directory 
-    //TODO: custom output path
-    //maybe pick output folder as well
-    document.save("merged.pdf").unwrap();
- 
+        Some (output_file_name) => {
+            output_file_name
+        }
+        None  => {
+            "merged.pdf".to_string()
+        }
+    };      
+    
+    match output_path {
 
+        Some(mut output_path) => {
+            output_path.push(output_file_name);
+            document.save(output_path).unwrap();
+        }
+
+        None => {
+            document.save(output_file_name).unwrap();
+        }
+        
+    }
     Ok(())
 }
