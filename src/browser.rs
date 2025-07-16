@@ -1,4 +1,3 @@
-use std::ffi::OsString;
 /**
  * Enables browsing for files in the terminal
  * 
@@ -7,16 +6,16 @@ use std::ffi::OsString;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 use inquire::*;
-use std::fs::{self, DirEntry};
+use std::fs::{self};
 
 pub fn pick_folder(start_dir: &Path) -> Option<PathBuf> {
-
+    
     let read_dir = fs::read_dir(start_dir).unwrap();  
     let mut options: Vec<String> = vec!["..".to_string(), "[Choose current folder]".to_string()];
+
     let mut displayable_options = read_dir
         .filter_map(|result| result.ok())
-        .map(|dir_entry| dir_entry.file_name().into_string())
-        .filter_map(|result| result.ok())
+        .map(|dir_entry| dir_entry.file_name().display().to_string())
         .collect::<Vec<String>>();
     
     options.append(&mut displayable_options);
@@ -51,30 +50,23 @@ pub fn pick_folder(start_dir: &Path) -> Option<PathBuf> {
                     print!("\x1B[1A\x1B[2K"); 
                     io::stdout().flush().unwrap();
                     return pick_folder(start_dir);
-                }
-                
+                } 
             }
         }
 
         Err(err) => {
             None
         }
-
     }
-    
-
-
 }
 
 pub fn pick_file(start_dir: &Path) -> Option<PathBuf>{
 
     let paths = fs::read_dir(start_dir).unwrap();
-
-    let mut file_names =  paths.filter_map(|path| {
-        path.ok().and_then(|p|{
-            p.path().file_name().and_then(|n| n.to_str().map(|s| String::from(s)))
-        })
-    }).collect::<Vec<String>>();
+    let mut file_names =  paths
+        .filter_map(|path|path.ok())
+        .map(|dir| dir.file_name().display().to_string()) 
+        .collect::<Vec<String>>();
 
     // move up one dir option
     let mut options: Vec<String> = vec!["..".to_string()];
