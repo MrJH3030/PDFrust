@@ -9,10 +9,11 @@ use inquire::*;
 use std::fs::{self};
 
 pub fn pick_folder(start_dir: &Path) -> Option<PathBuf> {
-    
+
     let read_dir = fs::read_dir(start_dir).unwrap();  
     let mut options: Vec<String> = vec!["..".to_string(), "[Choose current folder]".to_string()];
 
+    //look at jeremy chone best practice for into() type 
     let mut displayable_options = read_dir
         .filter_map(|result| result.ok())
         .map(|dir_entry| dir_entry.file_name().display().to_string())

@@ -7,4 +7,5 @@ edition = "2024"
 clap = { version = "4.0", features = ["derive"] }
 lopdf = "0.36"
 inquire = "0.7.5"
+derive_more = { version = "2", features = ["from"] }
 
