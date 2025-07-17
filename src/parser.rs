@@ -1,6 +1,6 @@
 use crate::error::{Error, Result};
 use std::collections::HashSet;
-use std::{process, u32};
+use std::u32;
 
 /**
  *
@@ -23,8 +23,12 @@ pub fn parse_page_string(page_string: &mut String) -> Result<HashSet<u32>> {
             let range = string.split_once('-');
             match range {
                 Some(tuple) => {
-                    let r1 = tuple.0.to_string().parse::<u32>()?;
-                    let r2 = tuple.1.to_string().parse::<u32>()?;
+                    let r1 = tuple.0.to_string().parse::<u32>().map_err(|err| {
+                        Error::Custom(format!("{err}! Failed to parse: {}", tuple.0))
+                    })?;
+                    let r2 = tuple.1.to_string().parse::<u32>().map_err(|err| {
+                        Error::Custom(format!("{err}! Failed to parse: {}", tuple.1))
+                    })?;
                     if r1 <= r2 {
                         for p in r1..=r2 {
                             pages.insert(p);
@@ -34,7 +38,9 @@ pub fn parse_page_string(page_string: &mut String) -> Result<HashSet<u32>> {
                     }
                 }
                 None => {
-                    return Err(Error::FailedToParseRange { range_string: string });
+                    return Err(Error::FailedToParseRange {
+                        range_string: string,
+                    });
                 }
             }
         } else {
@@ -46,4 +52,3 @@ pub fn parse_page_string(page_string: &mut String) -> Result<HashSet<u32>> {
 
     Ok(pages)
 }
-
