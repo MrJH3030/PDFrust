@@ -119,7 +119,7 @@ pub fn select_pages() -> Result<HashSet<u32>> {
 
 pub fn select_output_name() -> Result<String>{
 
-    let string = CustomType::new("Enter file name!").with_validator(|string: &String| {
+    let string = CustomType::new("Enter output file name!").with_validator(|string: &String| {
                 //ToDO check if ends on pdf
                 Ok(Validation::Valid)
             }).with_help_message("Must end in .pdf or .PDF").prompt()?;
