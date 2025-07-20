@@ -100,10 +100,10 @@ pub fn pick_file(start_dir: &Path) -> Option<PathBuf> {
     }
 }
 
-pub fn select_pages() -> Result<HashSet<u32>> {
+pub fn select_pages( page_count: usize) -> Result<HashSet<u32>> {
     // ToDO Check if pages are out of bounds for doc
     // with validation function
-    let mut page_string = CustomType::new("Please enter pages!")
+    let mut page_string = CustomType::new(format!("Please select pages! [This document contains {page_count} page/s]").as_str())
         .with_validator(
             |string: &String| match parse_page_string(&mut string.clone()) {
                 Ok(_) => Ok(Validation::Valid),
@@ -120,8 +120,13 @@ pub fn select_pages() -> Result<HashSet<u32>> {
 pub fn select_output_name() -> Result<String>{
 
     let string = CustomType::new("Enter output file name!").with_validator(|string: &String| {
+
                 //ToDO check if ends on pdf
-                Ok(Validation::Valid)
+                if string.ends_with(".pdf") | string.ends_with(".PDF") {
+                    return Ok(Validation::Valid);
+                     // should this be an error?
+                }
+                return Ok(Validation::Invalid("Invalid file name".into()));
             }).with_help_message("Must end in .pdf or .PDF").prompt()?;
     Ok(string)
 

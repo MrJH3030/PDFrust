@@ -7,8 +7,11 @@ mod pdf_util;
 pub use self::error::{Error, Result};
 use args::*;
 use clap::Parser;
+use inquire::Confirm;
+use lopdf::Document;
 use std::env;
 use std::path::Path;
+use std::io::{self, Write};
 
 fn main() -> Result<()> {
     let arguments = CliArgs::parse();
@@ -52,24 +55,28 @@ fn main() -> Result<()> {
             }
         }
 
-        Commands::Browse {} => {
-           
+        Commands::Browse {} => {        
            
             // make this better to have handle more files in the future
             //ToDo page string for all ? 
-            let first_file = browser::pick_file(&Path::new(&env::current_dir()?)).unwrap();            
-            let pages_1 = browser::select_pages()?;        
-        
-            let second_file = browser::pick_file(&Path::new(&env::current_dir()?)).unwrap();
-            let pages_2 = browser::select_pages()?;            
+            let mut keep_adding: bool = true;
+            let mut documents: Vec<Document> =  Vec::new();
+            while keep_adding {
+
+                let file = browser::pick_file(&Path::new(&env::current_dir()?)).unwrap();
+                let mut  document = Document::load(file.display().to_string())?;
+                let page_count = document.get_pages().len();    
+                let pages = browser::select_pages(page_count)?;
+                pdf_util::delete_pages_not_in(&pages, &mut document);
+                documents.push(document);
+                keep_adding = Confirm::new("Add another file?").with_default(true).prompt()?;
+                print!("\x1B[1A\x1B[2K");
+                io::stdout().flush().unwrap();           
+
+            }
 
             let output_path = browser::pick_folder(&Path::new(&env::current_dir()?))?;
             let output_file_name = browser::select_output_name()?;
-            let mut documents = pdf_util::load_docs_from_paths(vec![&first_file, &second_file]);
-
-            
-            pdf_util::delete_pages_not_in(&pages_1, &mut documents[0]);
-            pdf_util::delete_pages_not_in(&pages_2, &mut documents[1]);
 
             match pdf_util::merge_docs(documents, Some(output_path), Some(output_file_name)) {
                 Ok(()) => {

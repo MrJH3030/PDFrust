@@ -24,7 +24,12 @@ pub enum Error {
     ParseInt(std::num::ParseIntError),
 
     #[from]
-    InquireError(InquireError)
+    InquireError(InquireError),
+
+    #[from]
+    LoPdf(lopdf::Error)
+
+
 }
 
 impl core::fmt::Display for Error {

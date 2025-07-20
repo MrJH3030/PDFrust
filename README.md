@@ -1,9 +1,12 @@
-# ToDo
-- subcommands:
-- merge 
-- del-page
-- gui mode
-- browse mode with inquire or ratatui
+# PDFrust
+Simple command line tool which allows to merge pdf documents and select specific pages. 
 
-- parse pages
-- maybe tests  
+
+## Commands
+- merge [directly merge two documents]
+- browse [browse your files in the terminal and merge as many as you want]
+- delete [remove pages from a document]
+- --help
+
+
+Development is still in progess 
