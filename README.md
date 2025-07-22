@@ -1,5 +1,5 @@
 # PDFrust
-Simple command line tool which allows to merge pdf documents and select specific pages. 
+Simple command line tool which allows to merge pdf documents and select specific pages. I made this to be able to merge private documents without having to upload them to a random website. 
 
 
 ## Commands

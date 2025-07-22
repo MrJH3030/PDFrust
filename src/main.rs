@@ -3,6 +3,9 @@ mod browser;
 mod error;
 mod parser;
 mod pdf_util;
+mod utils;
+
+use crate::utils::strings::{standard_string, StandardString};
 
 pub use self::error::{Error, Result};
 use args::*;
@@ -11,7 +14,6 @@ use inquire::Confirm;
 use lopdf::Document;
 use std::env;
 use std::path::Path;
-use std::io::{self, Write};
 
 fn main() -> Result<()> {
     let arguments = CliArgs::parse();
@@ -47,7 +49,7 @@ fn main() -> Result<()> {
             //ToDo choose output path and let default be the folder from where th app was called
             match pdf_util::merge_docs(documents, output_path.clone(), output_name.clone()) {
                 Ok(_) => {
-                    println!("Successfully merged documents!");
+                    println!("{}", standard_string(StandardString::SuccessfullyMerged));
                 }
                 Err(err) => {
                     eprintln!("{err}");
@@ -69,10 +71,8 @@ fn main() -> Result<()> {
                 let pages = browser::select_pages(page_count)?;
                 pdf_util::delete_pages_not_in(&pages, &mut document);
                 documents.push(document);
-                keep_adding = Confirm::new("Add another file?").with_default(true).prompt()?;
-                print!("\x1B[1A\x1B[2K");
-                io::stdout().flush().unwrap();           
-
+                keep_adding = Confirm::new(standard_string(utils::strings::StandardString::AddFile)).with_default(true).prompt()?;
+                utils::clear_screen_line();
             }
 
             let output_path = browser::pick_folder(&Path::new(&env::current_dir()?))?;
@@ -80,7 +80,7 @@ fn main() -> Result<()> {
 
             match pdf_util::merge_docs(documents, Some(output_path), Some(output_file_name)) {
                 Ok(()) => {
-                    println!("Successfully merged documents!");
+                    println!("{}", standard_string(StandardString::SuccessfullyMerged));
                 }
 
                 Err(err) => {

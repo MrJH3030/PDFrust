@@ -1,10 +1,11 @@
 use crate::error::{Error, Result};
-use crate::parser::*;
+use crate::utils::strings::standard_string;
+use crate::utils::strings::StandardString as StandardString;
+use crate::{parser, utils};
 use inquire::validator::Validation;
 use inquire::*;
 use std::collections::HashSet;
 use std::fs::{self};
-use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 /**
  * Enables browsing for files in the terminal
@@ -14,7 +15,7 @@ use std::path::{Path, PathBuf};
 
 pub fn pick_folder(start_dir: &Path) -> Result<PathBuf> {
     let read_dir = fs::read_dir(start_dir).unwrap();
-    let mut options: Vec<String> = vec!["..".to_string(), "[Choose current folder]".to_string()];
+    let mut options: Vec<String> = vec![standard_string(StandardString::MoveUp).to_string(), standard_string(StandardString::ChooseCurrentFolder).to_string()];
 
     //look at jeremy chone best practice for into() type
     let mut displayable_options = read_dir
@@ -23,31 +24,29 @@ pub fn pick_folder(start_dir: &Path) -> Result<PathBuf> {
         .collect::<Vec<String>>();
 
     options.append(&mut displayable_options);
-    let selection = Select::new("Choose an output folder!", options).prompt();
+    let selection = Select::new(standard_string(StandardString::ChooseOutputFolder), options).prompt();
     match selection {
         Ok(choice) => {
             if choice == ".." {
-                print!("\x1B[1A\x1B[2K");
-                io::stdout().flush().unwrap();
-
+                utils::clear_screen_line();
+                // select parent folder
                 if let Some(parent) = start_dir.parent() {
                     return pick_folder(parent);
+
                 } else {
                     return pick_folder(start_dir); // Already at root
                 }
-            } else if choice == "[Choose current folder]" {
+            } else if choice == standard_string(StandardString::ChooseCurrentFolder) {
                 Ok(start_dir.to_path_buf())
             } else {
                 let selected_path = start_dir.join(&choice);
                 if selected_path.is_dir() {
                     //clear line if dir was selected
-                    print!("\x1B[1A\x1B[2K");
-                    io::stdout().flush().unwrap();
+                    utils::clear_screen_line();
                     return pick_folder(&selected_path);
                 } else {
-                    //file was picked which is not possible
-                    print!("\x1B[1A\x1B[2K");
-                    io::stdout().flush().unwrap();
+                    //file was picked which is not a valid option -> choose again
+                    utils::clear_screen_line();
                     return pick_folder(start_dir);
                 }
             }
@@ -69,13 +68,12 @@ pub fn pick_file(start_dir: &Path) -> Option<PathBuf> {
     options.append(&mut file_names);
 
     // Uses Inquire lib for terminal management
-    let selection = Select::new("Choose a file!", options.clone()).prompt();
+    let selection = Select::new(standard_string(StandardString::ChooseFile), options.clone()).prompt();
     match selection {
         Ok(choice) => {
             if choice == ".." {
                 //clear line if a dir was selected
-                print!("\x1B[1A\x1B[2K");
-                io::stdout().flush().unwrap();
+                utils::clear_screen_line();
 
                 if let Some(parent) = start_dir.parent() {
                     return pick_file(parent);
@@ -86,10 +84,9 @@ pub fn pick_file(start_dir: &Path) -> Option<PathBuf> {
 
             let selected_path = start_dir.join(&choice);
             if selected_path.is_dir() {
-                //clear line if dir was selected
-                print!("\x1B[1A\x1B[2K");
-                io::stdout().flush().unwrap();
+                utils::clear_screen_line();
                 pick_file(&selected_path)
+
             } else if selected_path.is_file() {
                 Some(selected_path)
             } else {
@@ -105,29 +102,30 @@ pub fn select_pages( page_count: usize) -> Result<HashSet<u32>> {
     // with validation function
     let mut page_string = CustomType::new(format!("Please select pages! [This document contains {page_count} page/s]").as_str())
         .with_validator(
-            |string: &String| match parse_page_string(&mut string.clone()) {
+            |string: &String| match parser::parse_page_string(&mut string.clone()) {
                 Ok(_) => Ok(Validation::Valid),
 
                 Err(err) => Ok(Validation::Invalid(err.into())),
             },
         )
-        .with_help_message("Like 1,2,3,4-5")
+        .with_help_message(standard_string(StandardString::PatternHelperMessage))
         .prompt()?;
-    let pages = parse_page_string(&mut page_string)?;
+    let pages = parser::parse_page_string(&mut page_string)?;
     Ok(pages)
 }
 
 pub fn select_output_name() -> Result<String>{
 
-    let string = CustomType::new("Enter output file name!").with_validator(|string: &String| {
+    let string = CustomType::new(standard_string(StandardString::EnterOutputFileName)).with_validator(|string: &String| {
 
                 //ToDO check if ends on pdf
-                if string.ends_with(".pdf") | string.ends_with(".PDF") {
+                if string.ends_with(standard_string(StandardString::PdfLowerCase)) || string.ends_with(standard_string(StandardString::PdfUpperCase)) {
                     return Ok(Validation::Valid);
-                     // should this be an error?
+                
                 }
-                return Ok(Validation::Invalid("Invalid file name".into()));
-            }).with_help_message("Must end in .pdf or .PDF").prompt()?;
+                return Ok(Validation::Invalid(standard_string(StandardString::InvalidFileName).into()));
+            }).with_help_message(standard_string(StandardString::PdfHelperMessage)).prompt()?;
     Ok(string)
 
 }
+
